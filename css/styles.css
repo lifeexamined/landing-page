@@ -169,6 +169,14 @@ section {
   text-align: left;
 }
 
+.active {
+  opacity: 1;
+}
+
+.inactive {
+  opacity: 0.5;
+}
+
 @media only screen and (min-width: 35em) {
   .landing__container {
     max-width: 50em;

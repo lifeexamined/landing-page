@@ -66,17 +66,31 @@ for (let i = 1; i <= totalSections; i++) {
 // Scroll functionality for sections
 const nodeArray = Array.from(document.querySelectorAll("section"));
 
+const menuNodeArray = Array.from(document.querySelectorAll("#navbar__list > li"));
+
+const setActive = node => {
+  node.setAttribute('class', 'active');
+}
+
+const setInactive = node => {
+  node.setAttribute('class', 'inactive');
+}
+
 const dimAllSections = () => {
-  nodeArray.forEach(function(node) {
-    node.style.opacity = 0.5;
-  });
+  nodeArray.forEach(setInactive);
 };
 
-const highlightSection = id => {
-  const section = document.querySelector("#" + id);
-  if (!section) return;
-  section.style.opacity = 1;
+const deactivateAllMenuItems = () => {
+  menuNodeArray.forEach(setInactive);
 };
+
+const highlightSection = index => {
+  setActive(nodeArray[index]);
+};
+
+const highlightActiveMenuItem = index => {
+  setActive(menuNodeArray[index]);
+}
 
 const getAllSectionsOffset = () => {
   const result = [];
@@ -95,14 +109,18 @@ const getAllSectionsOffset = () => {
 
 const allSectionsOffset = getAllSectionsOffset();
 
-const getSectionIdInView = scrollY => {
+const getSectionIndexInView = scrollY => {
   const offsets = allSectionsOffset;
   for (offset of offsets) {
     // Make sure section is in the view
     if (scrollY > offset.start && scrollY < offset.end) {
-      return offset.id;
+      const id = offset.id;
+      for (let i in nodeArray) {
+        if (nodeArray[i].id === id) return i;
+      }
     }
   }
+  return 0;
 };
 
 // Add event listeners
@@ -114,8 +132,19 @@ document.querySelector(".navbar__menu").addEventListener("click", e => {
   }
 });
 
+let indexMemo = 0;
+
+const updateIndexMemo = (index) => {
+  indexMemo = index;
+};
+
 window.addEventListener("scroll", function() {
-  const id = getSectionIdInView(window.scrollY);
+  const index = getSectionIndexInView(window.scrollY);
+  // Prevent unnecessary updates
+  if (index === indexMemo) return;
+  updateIndexMemo(index)
   dimAllSections();
-  highlightSection(id);
+  deactivateAllMenuItems();
+  highlightSection(index);
+  highlightActiveMenuItem(index);
 });
